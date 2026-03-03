@@ -1,3 +1,40 @@
+# QUIC bbr
+| Return Type | Function Name | Description |
+|---|---|---|
+| `void` | `BbrBandwidthFilterOnPacketAcked` | Updates BBR bandwidth max-filter from ACKed packet samples, handling app-limited sample rules and delivery-rate estimation. |
+| `uint64_t` | `BbrCongestionControlGetBandwidth` | Returns current estimated bottleneck bandwidth from BBR’s windowed max filter. |
+| `BOOLEAN` | `BbrCongestionControlInRecovery` | Returns whether BBR is currently in a recovery state. |
+| `uint32_t` | `BbrCongestionControlGetCongestionWindow` | Computes effective congestion window (including ProbeRTT minimum-cwnd and recovery-window capping). |
+| `void` | `BbrCongestionControlTransitToProbeBw` | Transitions BBR state machine to `PROBE_BW`, randomizes cycle start index, and sets pacing gain. |
+| `void` | `BbrCongestionControlTransitToStartup` | Transitions BBR state machine to `STARTUP` and applies high pacing/cwnd gains. |
+| `BOOLEAN` | `BbrCongestionControlIsAppLimited` | Returns whether BBR currently treats the sender as app-limited. |
+| `void` | `QuicConnLogBbr` | Emits connection trace log of key BBR state (mode, cwnd, in-flight, min RTT, bandwidth, app-limited flag). |
+| `void` | `BbrCongestionControlGetNetworkStatistics` | Fills `QUIC_NETWORK_STATISTICS` snapshot using BBR/path/send-buffer state. |
+| `void` | `BbrCongestionControlIndicateConnectionEvent` | Raises `QUIC_CONNECTION_EVENT_NETWORK_STATISTICS` to the app with BBR-derived metrics. |
+| `BOOLEAN` | `BbrCongestionControlCanSend` | Returns whether sending is allowed based on effective cwnd or exemption count. |
+| `void` | `BbrCongestionControlLogOutFlowStatus` | Logs outbound flow stats relevant to BBR/cwnd/FC/path timing. |
+| `BOOLEAN` | `BbrCongestionControlUpdateBlockedState` | Updates connection congestion-blocked reason based on send eligibility and returns whether it became unblocked. |
+| `uint32_t` | `BbrCongestionControlGetBytesInFlightMax` | Returns peak tracked bytes-in-flight value. |
+| `uint8_t` | `BbrCongestionControlGetExemptions` | Returns remaining congestion-control exemption packet count. |
+| `void` | `BbrCongestionControlSetExemption` | Sets exemption packet count that can bypass normal cwnd checks. |
+| `void` | `BbrCongestionControlOnDataSent` | Accounts sent retransmittable bytes, updates in-flight/max, handles exemptions, and blocked-state transitions. |
+| `BOOLEAN` | `BbrCongestionControlOnDataInvalidated` | Removes invalidated bytes from in-flight and returns whether send path became unblocked. |
+| `void` | `BbrCongestionControlUpdateRecoveryWindow` | Updates BBR recovery window during recovery based on newly ACKed bytes and minimum cwnd floor. |
+| `void` | `BbrCongestionControlHandleAckInProbeRtt` | Handles ProbeRTT ACK behavior, manages exit timers/round tracking, and transitions back to Startup/ProbeBW. |
+| `uint64_t` | `BbrCongestionControlUpdateAckAggregation` | Tracks ACK aggregation excess and updates ACK-height max filter used for cwnd inflation. |
+| `uint32_t` | `BbrCongestionControlGetTargetCwnd` | Computes target cwnd from estimated bandwidth-delay product, gain, and send quantum. |
+| `uint32_t` | `BbrCongestionControlGetSendAllowance` | Computes current send allowance using cwnd limits and optional pacing-rate calculation. |
+| `void` | `BbrCongestionControlTransitToProbeRtt` | Transitions state to `PROBE_RTT` and marks app-limited probing context. |
+| `void` | `BbrCongestionControlTransitToDrain` | Transitions state to `DRAIN` with drain pacing gain. |
+| `void` | `BbrCongestionControlSetSendQuantum` | Derives send quantum from pacing rate and datagram payload size thresholds. |
+| `void` | `BbrCongestionControlUpdateCongestionWindow` | Evolves cwnd based on BBR phase, target cwnd, ACKed bytes, and ACK-aggregation filter. |
+| `BOOLEAN` | `BbrCongestionControlOnDataAcknowledged` | Main ACK handler: updates RTT/bandwidth/rounds/state transitions, recovery logic, cwnd, and blocked state. |
+| `void` | `BbrCongestionControlOnDataLost` | Handles loss events, enters/updates recovery, adjusts recovery window, and updates blocked/log state. |
+| `BOOLEAN` | `BbrCongestionControlOnSpuriousCongestionEvent` | Handles spurious congestion notification (currently no recovery rollback; returns `FALSE`). |
+| `void` | `BbrCongestionControlSetAppLimited` | Marks bandwidth filter app-limited state when sender is limited below cwnd. |
+| `void` | `BbrCongestionControlReset` | Resets BBR runtime state (optionally full reset), including windows, filters, phase state, and timing markers. |
+| `void` | `BbrCongestionControlInitialize` | Initializes BBR vtable and all BBR state/filters/windows from connection path and settings. |
+
 # QUIC binding 
 | Return Type | Function Name | Description |
 |---|---|---|
